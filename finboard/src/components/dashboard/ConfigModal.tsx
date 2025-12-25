@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useAppDispatch } from '@/store/hooks';
 import { addWidget } from '@/store/dashboardSlice';
 import { WidgetType } from '@/types';
-import { X, Save, BarChart3, Table as TableIcon, CreditCard } from 'lucide-react';
+import { X, Save, BarChart3, Table as TableIcon, CreditCard, Loader2, AlertCircle } from 'lucide-react';
+import JsonExplorer from './JsonExplorer';
 
 interface ConfigModalProps {
   onClose: () => void;
@@ -20,6 +21,40 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
   const [refreshInterval, setRefreshInterval] = useState(60);
   const [type, setType] = useState<WidgetType>('card');
 
+  // New State for JSON Explorer
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Function to fetch data from the API
+  const handleTestApi = async () => {
+    if (!apiEndpoint) return;
+    setIsLoading(true);
+    setError(null);
+    setPreviewData(null);
+
+    try {
+      const res = await fetch(apiEndpoint);
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+      const data = await res.json();
+      setPreviewData(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to toggle field selection
+  const handleFieldSelect = (path: string) => {
+    setSelectedFields(prev =>
+      prev.includes(path)
+        ? prev.filter(p => p !== path)
+        : [...prev, path]
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -34,26 +69,26 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
       type,
       apiEndpoint,
       refreshInterval,
-      position: { x: 0, y: 0, w: 1, h: 1 }, // Default size/pos (Grid handles placement)
-      selectedFields: [] // We will handle this in the next task (JSON Explorer)
+      position: { x: 0, y: 0, w: 1, h: 2 }, // Default size (w:1 in 3-col grid is good)
+      selectedFields: selectedFields // Pass the user selection
     }));
 
     onClose(); // Close modal after success
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
       
       {/* Header */}
-      <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+      <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex-shrink-0">
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">Configure Widget</h2>
         <button onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
           <X size={24} />
         </button>
       </div>
 
-      {/* Form Body */}
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      {/* Form Body - Scrollable */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1">
         
         {/* 1. General Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -92,12 +127,50 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
               value={apiEndpoint}
               onChange={(e) => setApiEndpoint(e.target.value)}
             />
-            <button type="button" className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 font-medium text-sm transition-colors">
-              Test
+            <button 
+              type="button" 
+              onClick={handleTestApi}
+              disabled={isLoading || !apiEndpoint}
+              className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 font-medium text-sm transition-colors min-w-[80px] flex items-center justify-center disabled:opacity-50"
+            >
+              {isLoading ? <Loader2 className="animate-spin" size={16} /> : 'Test'}
             </button>
           </div>
           <p className="text-xs text-slate-500">Enter a public JSON API endpoint.</p>
         </div>
+
+        {/* 2.5 JSON Explorer Area */}
+        {(previewData || error) && (
+          <div className="border rounded-lg overflow-hidden border-slate-200 dark:border-slate-700 transition-all">
+            <div className="bg-slate-50 dark:bg-slate-900/50 px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+              <span className="text-xs font-bold uppercase text-slate-500">
+                {error ? 'Error' : 'Response Explorer'}
+              </span>
+              <span className="text-xs text-slate-400">
+                {selectedFields.length} fields selected
+              </span>
+            </div>
+            
+            <div className="max-h-[250px] overflow-y-auto p-4 bg-white dark:bg-slate-800 text-sm">
+              {error ? (
+                <div className="flex items-center text-red-500 gap-2">
+                  <AlertCircle size={16} /> {error}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                   <p className="text-xs text-slate-400 mb-2">
+                     Click on fields below to display them in your widget:
+                   </p>
+                   <JsonExplorer 
+                     data={previewData} 
+                     onSelect={handleFieldSelect} 
+                     selectedFields={selectedFields} 
+                   />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 3. Refresh & Type */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -160,7 +233,7 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-4 flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-700">
+        <div className="pt-4 flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-700 flex-shrink-0">
           <button 
             type="button" 
             onClick={onClose}

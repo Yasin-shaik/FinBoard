@@ -68,6 +68,9 @@ const dashboardSlice = createSlice({
         }
       });
     },
+    setDashboard: (state, action: PayloadAction<Widget[]>) => {
+      state.widgets = action.payload;
+    },
   },
 });
 
@@ -77,7 +80,8 @@ export const {
   updateWidgetPosition, 
   updateWidgetConfig,
   updateLayout, 
-  setWidgets 
+  setWidgets,
+  setDashboard 
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import QueryProvider from '@/store/QueryProvider';
+import DashboardPreloader from '@/store/DashboardPreloader';
 import './globals.css';
-import StoreProvider from '@/store/StoreProvider'; // Import the wrapper
+import StoreProvider from '@/store/StoreProvider'; 
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,7 +24,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <StoreProvider>
-          {children}
+          <QueryProvider>
+            <DashboardPreloader />
+            {children}
+            <Toaster position="bottom-right" />
+          </QueryProvider>
         </StoreProvider>
       </body>
     </html>

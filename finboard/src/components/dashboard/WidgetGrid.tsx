@@ -4,7 +4,7 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import { Responsive } from "react-grid-layout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateLayout, removeWidget } from "@/store/dashboardSlice";
-import WidgetWrapper from "./WidgetWrapper";
+import SmartWidget from './SmartWidget';
 
 // Hook to measure container width
 function useContainerWidth() {
@@ -90,16 +90,7 @@ export default function WidgetGrid() {
       >
         {widgets.map((widget) => (
           <div key={widget.id}>
-            <WidgetWrapper
-              id={widget.id}
-              title={widget.name}
-              onRemove={() => dispatch(removeWidget(widget.id))}
-              onEdit={() => console.log("Edit", widget.id)}
-            >
-              <div className="h-full flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 pointer-events-none">
-                {widget.type.toUpperCase()} View
-              </div>
-            </WidgetWrapper>
+            <SmartWidget widget={widget} />
           </div>
         ))}
       </Responsive>
