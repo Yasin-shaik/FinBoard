@@ -7,6 +7,7 @@ import DashboardPreloader from '@/store/DashboardPreloader';
 import './globals.css';
 import StoreProvider from '@/store/StoreProvider'; 
 import { Toaster } from 'react-hot-toast';
+import NextThemeProvider  from "@/store/NextThemeProvider"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,13 +22,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <StoreProvider>
           <QueryProvider>
-            <DashboardPreloader />
-            {children}
-            <Toaster position="bottom-right" />
+            <NextThemeProvider attribute="class" defaultTheme="system" enableSystem>
+               <DashboardPreloader />
+               {children}
+               <Toaster position="bottom-right" />
+            </NextThemeProvider>
           </QueryProvider>
         </StoreProvider>
       </body>
