@@ -3,7 +3,6 @@ export const saveToLocalStorage = (key: string, value: any) => {
     localStorage.setItem(key, JSON.stringify(value));
   }
 };
-
 export const getFromLocalStorage = (key: string) => {
   if (typeof window !== 'undefined') {
     const item = localStorage.getItem(key);

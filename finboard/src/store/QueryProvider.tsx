@@ -6,10 +6,8 @@ import toast from 'react-hot-toast';
 
 export default function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
-    // Global Query Cache Configuration
     queryCache: new QueryCache({
       onError: (error) => {
-        // 1. Check for our specific Rate Limit error
         if (error.message === 'RATE_LIMIT_REACHED') {
           toast.error("API Rate Limit Reached! 🛑\nData fetching paused for a moment.", {
             duration: 5000,
@@ -21,7 +19,6 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
             },
           });
         } 
-        // 2. Optional: Handle other common errors (like 401 Unauthorized)
         else {
           console.error(`Global Query Error: ${error.message}`);
         }
@@ -30,7 +27,6 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000,
-        // Don't retry immediately if we hit a rate limit, it just makes it worse
         retry: (failureCount, error) => {
           if (error.message === 'RATE_LIMIT_REACHED') return false;
           return failureCount < 2;

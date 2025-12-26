@@ -13,27 +13,20 @@ interface ConfigModalProps {
 
 export default function ConfigModal({ onClose }: ConfigModalProps) {
   const dispatch = useAppDispatch();
-
-  // Local State for Form Fields
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [apiEndpoint, setApiEndpoint] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(60);
   const [type, setType] = useState<WidgetType>('card');
-
-  // New State for JSON Explorer
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [previewData, setPreviewData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Function to fetch data from the API
   const handleTestApi = async () => {
     if (!apiEndpoint) return;
     setIsLoading(true);
     setError(null);
     setPreviewData(null);
-
     try {
       const res = await fetch(apiEndpoint);
       if (!res.ok) throw new Error(`Status: ${res.status}`);
@@ -45,8 +38,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
       setIsLoading(false);
     }
   };
-
-  // Function to toggle field selection
   const handleFieldSelect = (path: string) => {
     setSelectedFields(prev =>
       prev.includes(path)
@@ -54,43 +45,31 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
         : [...prev, path]
     );
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic Validation
     if (!name || !apiEndpoint) return;
-
-    // Dispatch to Redux Store
     dispatch(addWidget({
-      id: crypto.randomUUID(), // Generates a unique ID
+      id: crypto.randomUUID(),
       name,
       description,
       type,
       apiEndpoint,
       refreshInterval,
-      position: { x: 0, y: 0, w: 1, h: 2 }, // Default size (w:1 in 3-col grid is good)
-      selectedFields: selectedFields // Pass the user selection
+      position: { x: 0, y: 0, w: 1, h: 2 },
+      selectedFields: selectedFields
     }));
-
-    onClose(); // Close modal after success
+    onClose();
   };
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
-      
-      {/* Header */}
       <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex-shrink-0">
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">Configure Widget</h2>
         <button onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
           <X size={24} />
         </button>
       </div>
-
-      {/* Form Body - Scrollable */}
       <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1">
-        
-        {/* 1. General Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Widget Name</label>
@@ -114,8 +93,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
             />
           </div>
         </div>
-
-        {/* 2. API Configuration */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">API Endpoint URL</label>
           <div className="flex gap-2">
@@ -138,8 +115,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
           </div>
           <p className="text-xs text-slate-500">Enter a public JSON API endpoint.</p>
         </div>
-
-        {/* 2.5 JSON Explorer Area */}
         {(previewData || error) && (
           <div className="border rounded-lg overflow-hidden border-slate-200 dark:border-slate-700 transition-all">
             <div className="bg-slate-50 dark:bg-slate-900/50 px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
@@ -171,10 +146,7 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
             </div>
           </div>
         )}
-
-        {/* 3. Refresh & Type */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           {/* Refresh Interval */}
            <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Refresh Interval (sec)</label>
             <input 
@@ -185,8 +157,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
               onChange={(e) => setRefreshInterval(Number(e.target.value))}
             />
           </div>
-
-          {/* Display Mode Selection */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Display Mode</label>
             <div className="grid grid-cols-3 gap-2">
@@ -202,7 +172,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
                 <CreditCard size={20} className="mb-1" />
                 <span className="text-xs font-medium">Card</span>
               </button>
-              
               <button 
                 type="button"
                 onClick={() => setType('table')}
@@ -215,7 +184,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
                 <TableIcon size={20} className="mb-1" />
                 <span className="text-xs font-medium">Table</span>
               </button>
-
               <button 
                 type="button"
                 onClick={() => setType('chart')}
@@ -231,8 +199,6 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
             </div>
           </div>
         </div>
-
-        {/* Footer Actions */}
         <div className="pt-4 flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-700 flex-shrink-0">
           <button 
             type="button" 

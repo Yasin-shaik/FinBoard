@@ -5,23 +5,17 @@ import { useState } from 'react';
 
 interface JsonExplorerProps {
   data: any;
-  path?: string; // Tracks the key path (e.g., "data.rates.bitcoin")
+  path?: string;
   onSelect: (path: string) => void;
   selectedFields: string[];
 }
 
 export default function JsonExplorer({ data, path = '', onSelect, selectedFields }: JsonExplorerProps) {
-  const [isExpanded, setIsExpanded] = useState(path === ''); // Auto-expand root only
-
-  // Helper to determine data type
+  const [isExpanded, setIsExpanded] = useState(path === '');
   const isObject = data !== null && typeof data === 'object';
   const isArray = Array.isArray(data);
   const isEmpty = isObject && Object.keys(data).length === 0;
-  
-  // Check if this specific path is selected
   const isSelected = selectedFields.includes(path);
-
-  // 1. Handle Primitive Values (The selectable end-nodes)
   if (!isObject) {
     return (
       <div 
@@ -41,13 +35,9 @@ export default function JsonExplorer({ data, path = '', onSelect, selectedFields
       </div>
     );
   }
-
-  // 2. Handle Objects & Arrays (Recursive Containers)
   return (
     <div className="ml-4">
       <div className="flex items-center gap-2 py-1 group">
-        
-        {/* Expander Control */}
         <div 
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex items-center gap-1 cursor-pointer text-slate-700 dark:text-slate-300 text-sm hover:text-blue-500 transition-colors select-none"
@@ -60,12 +50,10 @@ export default function JsonExplorer({ data, path = '', onSelect, selectedFields
             </span>
           </span>
         </div>
-
-        {/* --- NEW: Selection Button for Containers (Arrays/Objects) --- */}
-        {path !== '' && ( // Don't allow selecting strict 'root' usually, but optional
+        {path !== '' && (
           <button
             onClick={(e) => {
-              e.stopPropagation(); // Prevent toggling the folder
+              e.stopPropagation();
               onSelect(path);
             }}
             className={`
@@ -81,14 +69,10 @@ export default function JsonExplorer({ data, path = '', onSelect, selectedFields
           </button>
         )}
       </div>
-
-      {/* Recursive Rendering of Children */}
       {isExpanded && !isEmpty && (
         <div className="border-l border-slate-200 dark:border-slate-700 pl-1 ml-1">
           {Object.keys(data).map((key) => {
             const newPath = path ? `${path}.${key}` : key;
-            
-            // Optimization: Limit massive arrays in preview
             if (isArray && Number(key) > 4) return null;
             if (isArray && Number(key) === 5) {
               return (
@@ -97,7 +81,6 @@ export default function JsonExplorer({ data, path = '', onSelect, selectedFields
                 </div>
               );
             }
-
             return (
               <JsonExplorer 
                 key={newPath} 
@@ -110,7 +93,6 @@ export default function JsonExplorer({ data, path = '', onSelect, selectedFields
           })}
         </div>
       )}
-      
       {isExpanded && isEmpty && (
         <div className="ml-6 text-xs text-slate-400 italic">Empty</div>
       )}

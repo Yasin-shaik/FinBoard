@@ -16,18 +16,11 @@ interface ChartWidgetProps {
 
 export default function ChartWidget({ data, config }: ChartWidgetProps) {
   const [chartType, setChartType] = useState<'line' | 'bar'>('line');
-
-  // 1. Determine X and Y fields from selection
-  // Assumption: 1st selection = X Axis (Time), 2nd selection = Y Axis (Value)
-  // If only 1 selected, we auto-generate X (index) and use selection as Y.
   const xField = config.selectedFields.length > 1 ? config.selectedFields[0] : '';
   const yField = config.selectedFields.length > 1 ? config.selectedFields[1] : config.selectedFields[0];
-
-  // 2. Process Data
   const chartData = useMemo(() => {
     return processChartData(data, xField, yField);
   }, [data, xField, yField]);
-
   if (!chartData || chartData.length === 0) {
     return (
       <div className="h-full flex items-center justify-center text-slate-400 text-sm">
@@ -35,11 +28,8 @@ export default function ChartWidget({ data, config }: ChartWidgetProps) {
       </div>
     );
   }
-
   return (
     <div className="h-full flex flex-col p-4 bg-white dark:bg-slate-800 rounded-lg">
-      
-      {/* Header Controls */}
       <div className="flex justify-end mb-2 gap-2">
         <button
           onClick={() => setChartType('line')}
@@ -56,8 +46,6 @@ export default function ChartWidget({ data, config }: ChartWidgetProps) {
           <BarChart2 size={16} />
         </button>
       </div>
-
-      {/* Chart Area */}
       <div className="flex-1 w-full min-h-[150px]">
         <ResponsiveContainer width="100%" height="100%">
           {chartType === 'line' ? (
@@ -65,19 +53,13 @@ export default function ChartWidget({ data, config }: ChartWidgetProps) {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
               <XAxis 
                 dataKey="name" 
-                hide={chartData.length > 20} // Hide X labels if too crowded
+                hide={chartData.length > 20}
                 tick={{ fontSize: 10, fill: '#94A3B8' }} 
               />
               <YAxis 
-                width={60} // Increased width so "$88,000" fits
+                width={60}
                 tick={{ fontSize: 10, fill: '#94A3B8' }}
-                
-                // CHANGE THIS LINE:
-                // Old: domain={['auto', 'auto']}
-                // New: 'dataMin' makes the chart zoom in on the lowest value visible
                 domain={['dataMin', 'auto']} 
-                
-                // Optional: Add a formatter to show "k" or "$"
                 tickFormatter={(value) => `$${value.toLocaleString()}`}
               />
               <Tooltip 

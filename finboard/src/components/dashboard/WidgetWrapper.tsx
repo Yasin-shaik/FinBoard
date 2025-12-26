@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react';
 import { Trash2, Edit2, MoreVertical, RefreshCw, AlertCircle } from 'lucide-react';
-import { cn } from '../../lib/utils';
 
 interface WidgetWrapperProps {
   id: string;
@@ -13,7 +12,7 @@ interface WidgetWrapperProps {
   onEdit: () => void;
   onRefresh?: () => void;
   children: ReactNode;
-  className?: string; // Allow custom classes for flexibility
+  className?: string;
 }
 
 export default function WidgetWrapper({
@@ -28,15 +27,11 @@ export default function WidgetWrapper({
 }: WidgetWrapperProps) {
   return (
     <div className={`flex flex-col h-full bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-all hover:shadow-md ${className}`}>
-      
-      {/* --- Standard Header Controls --- */}
       <div className="drag-handle cursor-move flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
         <h3 className="font-semibold text-slate-700 dark:text-slate-200 truncate pr-4" title={title}>
           {title}
         </h3>
-        
         <div className="flex items-center gap-1">
-          {/* Refresh Button (Optional but useful for real-time) */}
           {onRefresh && (
             <button 
               onClick={onRefresh}
@@ -46,8 +41,6 @@ export default function WidgetWrapper({
               <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
             </button>
           )}
-
-          {/* Edit Button */}
           <button 
             onClick={onEdit}
             className="p-1.5 text-slate-400 hover:text-amber-500 rounded-md hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
@@ -55,8 +48,6 @@ export default function WidgetWrapper({
           >
             <Edit2 size={14} />
           </button>
-
-          {/* Remove Button */}
           <button 
             onClick={onRemove}
             className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -66,10 +57,7 @@ export default function WidgetWrapper({
           </button>
         </div>
       </div>
-
-      {/* --- Content Area with State Handling --- */}
       <div className="flex-1 p-4 relative min-h-[150px]">
-        {/* State 1: Error */}
         {error ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-full mb-2">
@@ -81,7 +69,6 @@ export default function WidgetWrapper({
             </p>
           </div>
         ) 
-        /* State 2: Loading (First load) */
         : isLoading && !children ? (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-800/80 z-10">
             <div className="flex flex-col items-center gap-2">
@@ -90,11 +77,9 @@ export default function WidgetWrapper({
             </div>
           </div>
         ) 
-        /* State 3: Content */
         : (
           <div className="h-full w-full">
             {children}
-            {/* Overlay spinner for background updates (re-fetching) */}
             {isLoading && (
               <div className="absolute top-2 right-2">
                 <span className="relative flex h-3 w-3">

@@ -9,7 +9,6 @@ export default function DashboardCanvas() {
 
   return (
     <main className="ml-64 p-8 min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-      {/* Header */}
       <header className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 dark:text-white">
@@ -20,8 +19,6 @@ export default function DashboardCanvas() {
           </p>
         </div>
       </header>
-
-      {/* Empty State / Grid */}
       {widgets.length === 0 ? (
         <div className="h-[60vh] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-xl bg-slate-100/50 dark:bg-slate-900/40">
           <div className="bg-white dark:bg-slate-800 p-4 rounded-full shadow-sm mb-4">
