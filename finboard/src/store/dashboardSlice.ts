@@ -44,7 +44,16 @@ const dashboardSlice = createSlice({
     setWidgets: (state, action: PayloadAction<Widget[]>) => {
       state.widgets = action.payload;
     },
-
+    updateWidget: (state, action: PayloadAction<Widget>) => {
+      const index = state.widgets.findIndex((w) => w.id === action.payload.id);
+      if (index !== -1) {
+        state.widgets[index] = {
+          ...state.widgets[index],
+          ...action.payload,
+          position: state.widgets[index].position,
+        };
+      }
+    },
     updateLayout: (state, action: PayloadAction<LayoutItem[]>) => {
       action.payload.forEach((item) => {
         const widget = state.widgets.find((w) => w.id === item.i);
@@ -71,7 +80,8 @@ export const {
   updateWidgetConfig,
   updateLayout, 
   setWidgets,
-  setDashboard 
+  setDashboard,
+  updateWidget 
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

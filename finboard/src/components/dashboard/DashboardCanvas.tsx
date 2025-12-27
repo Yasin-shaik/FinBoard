@@ -1,12 +1,24 @@
 'use client';
 
-import { LayoutGrid } from 'lucide-react';
+import { useState } from 'react';
+import { LayoutGrid, Plus } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
 import WidgetGrid from './WidgetGrid';
+import ConfigModal from './ConfigModal';
+import { Widget } from '@/types';
 
 export default function DashboardCanvas() {
   const { widgets } = useAppSelector((state) => state.dashboard);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingWidget, setEditingWidget] = useState<Widget | null>(null);
+  const handleAddWidget = () => {
+    setEditingWidget(null);
+    setIsModalOpen(true);
+  };
+  const handleEditWidget = (widget: Widget) => {
+    setEditingWidget(widget);
+    setIsModalOpen(true);
+  };
   return (
     <main className="ml-64 p-8 min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       <header className="flex justify-between items-center mb-8">
@@ -18,6 +30,12 @@ export default function DashboardCanvas() {
             Real-time financial monitoring
           </p>
         </div>
+        <button 
+          onClick={handleAddWidget}
+          className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors"
+        >
+          <Plus size={20} /> Add Widget
+        </button>
       </header>
       {widgets.length === 0 ? (
         <div className="h-[60vh] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-xl bg-slate-100/50 dark:bg-slate-900/40">
@@ -27,13 +45,26 @@ export default function DashboardCanvas() {
           <h3 className="text-xl font-semibold text-slate-700 dark:text-white">
             No widgets yet
           </h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md text-center mt-2">
-            Your dashboard is empty. Click “Add Widget” in the sidebar to start
-            tracking your financial data.
+          <p className="text-slate-500 dark:text-slate-400 max-w-md text-center mt-2 mb-6">
+            Your dashboard is empty. Click below to start tracking data.
           </p>
+          <button 
+            onClick={handleAddWidget}
+            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Add First Widget
+          </button>
         </div>
       ) : (
-        <WidgetGrid />
+        <WidgetGrid onEditWidget={handleEditWidget} />
+      )}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <ConfigModal 
+            onClose={() => setIsModalOpen(false)} 
+            widgetToEdit={editingWidget} 
+          />
+        </div>
       )}
     </main>
   );

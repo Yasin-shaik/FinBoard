@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { addWidget } from '@/store/dashboardSlice';
-import { WidgetType } from '@/types';
+import { addWidget, updateWidget } from '@/store/dashboardSlice';
+import { WidgetType, Widget } from '@/types';
 import { X, Save, BarChart3, Table as TableIcon, CreditCard, Loader2, AlertCircle } from 'lucide-react';
 import JsonExplorer from './JsonExplorer';
 
 interface ConfigModalProps {
   onClose: () => void;
+  widgetToEdit ?: Widget | null;
 }
 
-export default function ConfigModal({ onClose }: ConfigModalProps) {
+export default function ConfigModal({ onClose, widgetToEdit }: ConfigModalProps) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -22,6 +23,16 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
   const [previewData, setPreviewData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (widgetToEdit) {
+      setName(widgetToEdit.name);
+      setDescription(widgetToEdit.description || '');
+      setApiEndpoint(widgetToEdit.apiEndpoint);
+      setRefreshInterval(widgetToEdit.refreshInterval);
+      setType(widgetToEdit.type);
+      setSelectedFields(widgetToEdit.selectedFields || []);
+    }
+  }, [widgetToEdit]);
   const handleTestApi = async () => {
     if (!apiEndpoint) return;
     setIsLoading(true);
@@ -48,23 +59,33 @@ export default function ConfigModal({ onClose }: ConfigModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !apiEndpoint) return;
-    dispatch(addWidget({
-      id: crypto.randomUUID(),
+    const widgetData = {
       name,
       description,
       type,
       apiEndpoint,
       refreshInterval,
-      position: { x: 0, y: 0, w: 1, h: 2 },
-      selectedFields: selectedFields
-    }));
+      selectedFields,
+    };
+    if (widgetToEdit) {
+      dispatch(updateWidget({
+        ...widgetToEdit,
+        ...widgetData,
+      }));
+    } else {
+      dispatch(addWidget({
+        id: crypto.randomUUID(),
+        position: { x: 0, y: 0, w: 1, h: 2 },
+        ...widgetData,
+      }));
+    }
     onClose();
   };
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
       <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex-shrink-0">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Configure Widget</h2>
+        <h2 className="text-xl font-bold text-slate-800 dark:text-white">{widgetToEdit ? 'Edit Widget' : 'Configure Widget'}</h2>
         <button onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
           <X size={24} />
         </button>

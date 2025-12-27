@@ -9,7 +9,12 @@ import ChartWidget from './ChartWidget';
 import { useAppDispatch } from '@/store/hooks';
 import { removeWidget } from '@/store/dashboardSlice';
 
-export default function SmartWidget({ widget }: { widget: Widget }) {
+interface SmartWidgetProps {
+  widget: Widget;
+  onEdit: (widget: Widget) => void;
+}
+
+export default function SmartWidget({ widget, onEdit }: SmartWidgetProps) {
   const dispatch = useAppDispatch();
   const { data, isLoading, error, refetch } = useFetchData({
     url: widget.apiEndpoint,
@@ -27,7 +32,6 @@ export default function SmartWidget({ widget }: { widget: Widget }) {
     }
     return <div>Unknown Widget Type</div>;
   };
-
   return (
     <WidgetWrapper
       id={widget.id}
@@ -35,7 +39,7 @@ export default function SmartWidget({ widget }: { widget: Widget }) {
       isLoading={isLoading}
       error={error ? error.message : null}
       onRemove={() => dispatch(removeWidget(widget.id))}
-      onEdit={() => console.log('Edit', widget.id)}
+      onEdit={() => onEdit(widget)}
       onRefresh={() => refetch()}
     >
       {data ? renderContent() : null}

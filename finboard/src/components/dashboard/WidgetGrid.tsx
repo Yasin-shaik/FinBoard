@@ -3,8 +3,13 @@
 import { useMemo, useEffect, useState, useRef } from "react";
 import { Responsive } from "react-grid-layout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { updateLayout, removeWidget } from "@/store/dashboardSlice";
+import { updateLayout } from "@/store/dashboardSlice";
 import SmartWidget from './SmartWidget';
+import { Widget } from "@/types";
+
+interface WidgetGridProps {
+  onEditWidget: (widget: Widget) => void;
+}
 
 function useContainerWidth() {
   const [width, setWidth] = useState(1200);
@@ -22,7 +27,7 @@ function useContainerWidth() {
   return { width, containerRef: ref };
 }
 
-export default function WidgetGrid() {
+export default function WidgetGrid({ onEditWidget }: WidgetGridProps) {
   const dispatch = useAppDispatch();
   const { widgets } = useAppSelector((state) => state.dashboard);
   const [mounted, setMounted] = useState(false);
@@ -43,20 +48,30 @@ export default function WidgetGrid() {
       })),
     [widgets]
   );
+  const mobileLayout = useMemo(() => {
+    return widgets.map((widget) => ({
+      i: widget.id,
+      x: 0,
+      y: 0,
+      w: 1,
+      h: widget.position.h,
+    }));
+  }, [widgets]);
   const layouts = useMemo(
     () => ({
       lg: baseLayout,
       md: baseLayout,
       sm: baseLayout,
-      xs: baseLayout,
-      xxs: baseLayout,
+      xs: mobileLayout,
+      xxs: mobileLayout,
     }),
-    [baseLayout]
+    [baseLayout, mobileLayout]
   );
   const handleLayoutChange = (layout: any) => {
     dispatch(updateLayout(layout));
   };
   if (!mounted) return null;
+  const isMobile = width < 768;
   return (
     <div ref={containerRef} className="w-full">
       <Responsive
@@ -69,14 +84,14 @@ export default function WidgetGrid() {
         margin={[16, 16]}
         onDragStop={handleLayoutChange}
         onResizeStop={handleLayoutChange}
-        isDraggable
-        isResizable
+        isDraggable={!isMobile} 
+        isResizable={!isMobile}
         compactType="vertical"
         {...({ draggableHandle: ".drag-handle" } as any)}
       >
         {widgets.map((widget) => (
           <div key={widget.id}>
-            <SmartWidget widget={widget} />
+            <SmartWidget widget={widget} onEdit={onEditWidget} />
           </div>
         ))}
       </Responsive>
