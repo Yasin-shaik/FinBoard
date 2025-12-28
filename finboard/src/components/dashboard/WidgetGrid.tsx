@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect, useState, useRef } from "react";
+import { useMemo, useEffect, useState, useRef, useCallback } from "react";
 import { Responsive } from "react-grid-layout";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateLayout } from "@/store/dashboardSlice";
@@ -67,9 +67,27 @@ export default function WidgetGrid({ onEditWidget }: WidgetGridProps) {
     }),
     [baseLayout, mobileLayout]
   );
-  const handleLayoutChange = (layout: any) => {
-    dispatch(updateLayout(layout));
-  };
+  const handleLayoutChange = useCallback((currentLayout: any[]) => {
+    const newPositions = currentLayout.map(item => ({
+        i: item.i, x: item.x, y: item.y, w: item.w, h: item.h
+    }));
+    let hasChanged = false;
+    for (const newItem of newPositions) {
+        const oldItem = widgets.find(w => w.id === newItem.i);
+        if (oldItem) {
+            if (oldItem.position.x !== newItem.x || 
+                oldItem.position.y !== newItem.y || 
+                oldItem.position.w !== newItem.w || 
+                oldItem.position.h !== newItem.h) {
+                hasChanged = true;
+                break;
+            }
+        }
+    }
+    if (hasChanged) {
+        dispatch(updateLayout(currentLayout));
+    }
+  }, [widgets, dispatch]);
   if (!mounted) return null;
   const isMobile = width < 768;
   return (
@@ -82,7 +100,8 @@ export default function WidgetGrid({ onEditWidget }: WidgetGridProps) {
         cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
         rowHeight={100}
         margin={[16, 16]}
-        onDragStop={handleLayoutChange}
+        // Use the guarded handler
+        onDragStop={handleLayoutChange} 
         onResizeStop={handleLayoutChange}
         isDraggable={!isMobile} 
         isResizable={!isMobile}

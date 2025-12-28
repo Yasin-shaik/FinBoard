@@ -66,15 +66,13 @@ Follow these instructions to run the project locally.
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/your-username/finboard.git](https://github.com/your-username/finboard.git)
+    git clone "https://github.com/Yasin-shaik/FinBoard"
     cd finboard
     ```
 
 2.  **Install dependencies**
     ```bash
     npm install
-    # or
-    yarn install
     ```
 
 3.  **Run the development server**
@@ -121,7 +119,6 @@ src/
 ├── app/                  # Next.js App Router pages
 ├── components/
 │   ├── dashboard/        # Widget specific components (Grid, Card, Table, Chart)
-│   └── layout/           # Sidebar, Navbar, etc.
 ├── hooks/                # Custom hooks (useFetchData)
 ├── store/                # Redux slices and middleware
 ├── types/                # TypeScript interfaces

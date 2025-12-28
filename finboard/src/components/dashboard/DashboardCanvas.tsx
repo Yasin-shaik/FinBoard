@@ -20,8 +20,8 @@ export default function DashboardCanvas() {
     setIsModalOpen(true);
   };
   return (
-    <main className="ml-64 p-8 min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-      <header className="flex justify-between items-center mb-8">
+    <main className="md:ml-64 p-4 md:p-8 min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors pt-20 md:pt-8">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 dark:text-white">
             My Overview

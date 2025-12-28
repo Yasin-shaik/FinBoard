@@ -1,6 +1,6 @@
 'use client';
 
-import { LayoutDashboard, Plus, Settings, Moon, Sun, Download, Upload } from 'lucide-react';
+import { LayoutDashboard, Plus, Settings, Moon, Sun, Download, Upload, Menu, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { setDashboard } from '@/store/dashboardSlice';
@@ -18,6 +18,7 @@ export default function Sidebar({ onAddWidget }: SidebarProps) {
   const [mounted, setMounted] = useState(false);
   const { widgets } = useAppSelector((state) => state.dashboard);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -55,7 +56,18 @@ export default function Sidebar({ onAddWidget }: SidebarProps) {
   };
 
   return (
-    <aside className="w-64 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 flex flex-col h-screen fixed left-0 top-0 z-10 shadow-xl border-r border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <>
+    <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 text-white rounded-md shadow-lg"
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+    <aside className={`
+        fixed top-0 left-0 h-screen w-64 bg-slate-900 text-white border-r border-slate-800 z-40 transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:translate-x-0
+      `}>
       <div className="p-6 border-b border-slate-200 dark:border-slate-800">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 dark:from-blue-400 dark:to-teal-400 bg-clip-text text-transparent">
           FinBoard
@@ -123,5 +135,12 @@ export default function Sidebar({ onAddWidget }: SidebarProps) {
         </button>
       </div>
     </aside>
+    {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+  </>
   );
 }
