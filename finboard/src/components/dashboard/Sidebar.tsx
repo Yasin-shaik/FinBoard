@@ -59,12 +59,16 @@ export default function Sidebar({ onAddWidget }: SidebarProps) {
     <>
     <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 text-white rounded-md shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-md shadow-lg border border-slate-200 dark:border-slate-700"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
     <aside className={`
-        fixed top-0 left-0 h-screen w-64 bg-slate-900 text-white border-r border-slate-800 z-40 transition-transform duration-300 ease-in-out
+        fixed top-0 left-0 h-screen w-64 
+        bg-white dark:bg-slate-900 
+        text-slate-900 dark:text-white 
+        border-r border-slate-200 dark:border-slate-800 
+        z-40 transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:translate-x-0
       `}>
